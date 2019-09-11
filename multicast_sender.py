@@ -1,17 +1,42 @@
 import socket
+import asyncio
 
 multicast_group = '239.0.0.1'
 multicast_port = 8888
-
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
 
 # default value 1 works
 # sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 2)
 
-for x in range(1, 11):
-    test = [x, 2, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0]
-    test2 = 'JohnnyDepp'
-    test3 = [0, 1]
+############### POPULATE SCOREBOARD WITH 10 RACERS ###############
+# for x in range(1, 11):
+#     test = [x, 2, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0]
+#     test2 = 'JohnnyDepp'
+#     test3 = [0, 1]
 
-    data = bytes(test) + bytes(test2, 'utf-8') + bytes(test3)
-    sock.sendto(data, (multicast_group, multicast_port))
+#     data = bytes(test) + bytes(test2, 'utf-8') + bytes(test3)
+#     sock.sendto(data, (multicast_group, multicast_port))
+async def main():
+    for x in range(1, 11):
+        asyncio.get_event_loop().create_task(start_kart(x, x))
+
+async def start_kart(delay, kart):
+    # await asyncio.sleep(delay)
+    prevLap = 0
+    elapsed = 0
+    while(True):
+        data_part_1 = [kart, 2, 1, 3] # kartNO, status, currLap, totalLaps
+        data_part_2 = [0, ((prevLap // 256) // 256) % 256, (prevLap // 256) % 256, prevLap % 256] # prevLap
+        data_part_3 = [0, ((prevLap // 256) // 256) % 256, (prevLap // 256) % 256, prevLap % 256] # bestLap
+        data_part_4 = ('Racer ' + str(kart) + '   ')[0:10] # name
+        data_part_5 = [0, 1] # checkSum, mode
+        data = bytes(data_part_1) + bytes(data_part_2) + bytes(data_part_3) + bytes(data_part_4, 'utf-8') + bytes(data_part_5)
+        sock.sendto(data, (multicast_group, multicast_port))
+        elapsed += 100
+        if(elapsed % 5000):
+            prevLap = 5000 - elapsed // 5000
+        # await asyncio.sleep(0.1)
+
+loop = asyncio.get_event_loop()
+loop.run_until_complete(main())
+loop.close()
