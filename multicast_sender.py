@@ -95,6 +95,10 @@ def start_kart(delay, kart):
         data_part_1 = [kart, 2, 1, 3] # kartNO, status, currLap, totalLaps
         data_part_2 = [0, ((prevLap // 256) // 256) % 256, (prevLap // 256) % 256, prevLap % 256] # prevLap
         data_part_3 = [0, ((prevLap // 256) // 256) % 256, (prevLap // 256) % 256, prevLap % 256] # bestLap
+
+        data_part_2 = prevLap.to_bytes(4, 'big') # prevLap
+        data_part_3 = prevLap.to_bytes(4, 'big') # bestLap
+
         data_part_4 = ('Racer ' + str(kart) + '   ')[0:10] # name
         data_part_5 = [0, 1] # checkSum, mode
         data = bytes(data_part_1) + bytes(data_part_2) + bytes(data_part_3) + bytes(data_part_4, 'utf-8') + bytes(data_part_5)
@@ -105,7 +109,7 @@ def start_kart(delay, kart):
         sleep(0.1)
 
 def main():
-    for x in range(1, 2):
+    for x in range(1, 11):
         Thread(target=start_kart, args=(x,x)).start()
 
 if __name__ == '__main__':
