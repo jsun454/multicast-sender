@@ -7,10 +7,14 @@ STATUS_IDLE = 0
 STATUS_PREP = 1
 STATUS_DRIVE = 2
 
-RACE_TIME_LENGTH = 1000*60*5 # 5 minute race
+# race modes
+DISTANCE_MODE = 0
+TIME_MODE = 1
+
+RACE_TIME_LENGTH = 1000*60*1 # 1 minute race
 RACE_TOTAL_LAPS = 10 # 10 lap race
 
-multicast_group = '239.0.0.1'
+multicast_group = '239.0.0.2' # SHOULD BE 239.0.0.1
 multicast_port = 8888
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
 
@@ -33,13 +37,15 @@ def start_kart(delay, kart):
     total_time = RACE_TIME_LENGTH # total race duration (time mode)
     lap = 1 # current lap number
     total_laps = RACE_TOTAL_LAPS # total race distance (distance mode)
+    lap_times = [1000*8, 1000*16, 1000*23, 1000*30, 1000*36, 1000*42, 1000*47, 1000*52, 1000*56, 1000*60, 1000*660] # element at position i stores the total time needed to complete (i+1) laps
+    race_is_done = False
 
     sleep(delay/10) # initial delay before starting this kart
 
     # main loop for sending multicast packets for this kart
     while True:
-        if(status == STATUS_IDLE):
-            if(idle_time >= max_idle_time):
+        if status == STATUS_IDLE:
+            if idle_time >= max_idle_time:
                 status = STATUS_PREP
                 idle_time = 0
 
@@ -61,8 +67,8 @@ def start_kart(delay, kart):
 
             idle_time += 100
             sleep(0.1)
-        elif(status == STATUS_PREP):
-            if(prep_time >= max_prep_time):
+        elif status == STATUS_PREP:
+            if prep_time >= max_prep_time:
                 status = STATUS_DRIVE
                 prep_time = 0
 
@@ -84,7 +90,23 @@ def start_kart(delay, kart):
 
             prep_time += 100
             sleep(0.1)
-        elif(status == STATUS_DRIVE):
+        elif status == STATUS_DRIVE:
+            if not race_is_done:
+                # racer finishes another lap
+                if elapsed_time > lap_times[lap-1]:
+                    # record lap time
+                    prev_lap_time = lap_times[lap] - lap_times[lap-1]
+                    if race_mode == DISTANCE_MODE and lap == total_laps:
+                        # race is finished if this was the last lap in distance mode
+                        race_is_done = True
+                    else:
+                        # otherwise, increment the current lap number
+                        lap += 1
+
+                # race is finished if the elapsed time surpasses the total race duration
+                if race_mode == TIME_MODE and elapsed_time >= total_time:
+                    race_is_done = True
+
             # kart number, status, current lap number, total number of laps
             data_part_1 = [kart, STATUS_DRIVE, lap, total_laps]
 
@@ -95,7 +117,7 @@ def start_kart(delay, kart):
             data_part_3 = elapsed_time.to_bytes(4, 'big')
 
             # total race duration
-            data_part_4 = (1000*(60*5+11)+888).to_bytes(4, 'big')
+            data_part_4 = total_time.to_bytes(4, 'big')
 
             # driver name
             data_part_5 = driver_name
@@ -106,10 +128,8 @@ def start_kart(delay, kart):
             data = bytes(data_part_1) + data_part_2 + data_part_3 + data_part_4 + bytes(data_part_5, 'utf-8') + bytes(data_part_6)
             sock.sendto(data, (multicast_group, multicast_port))
 
-            elapsed_time += 100
-            if(elapsed_time % 5000):
-                prev_lap_time = 5000 - elapsed_time // 5000
-            lap = elapsed_time // 5000 + 1
+            if not race_is_done:
+                elapsed_time += 100
             sleep(0.1)
         else:
             break
