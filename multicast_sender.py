@@ -14,7 +14,7 @@ TIME_MODE = 1
 RACE_TIME_LENGTH = 1000*60*1 # 1 minute race
 RACE_TOTAL_LAPS = 10 # 10 lap race
 
-multicast_group = '239.0.0.2' # TODO: SHOULD BE 239.0.0.1 BUT IT DECiDED TO STOP WORKING FOR SOME REASON
+multicast_group = '239.0.0.1'
 multicast_port = 8888
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
 
