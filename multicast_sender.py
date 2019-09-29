@@ -18,6 +18,8 @@ multicast_group = '239.0.0.1'
 multicast_port = 8888
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
 
+# TODO: implement realistic checkSum
+
 def start_kart(delay, kart):
     status = STATUS_IDLE # kart's current status
     race_mode = (kart//6==1) # race mode (0 for distance mode, fixed number of laps; 1 for time mode, fixed race duration)
