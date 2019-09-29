@@ -19,6 +19,7 @@ multicast_port = 8888
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
 
 # TODO: implement realistic checkSum
+# TODO: vary racer lap times to test scoreboard reordering
 
 def start_kart(delay, kart):
     status = STATUS_IDLE # kart's current status
