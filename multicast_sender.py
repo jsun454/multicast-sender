@@ -59,7 +59,11 @@ def start_kart(delay, kart):
                     lap = 1
                     idle_time = 0
                     lap_time_offset = 10*kart
+<<<<<<< HEAD
                     # lap_time_offset = 10*kart*(1 if kart%2==0 else -1) # alternating kart placements
+=======
+                    #*(1 if kart%2==0 else -1) # add to previous line to get alternating kart placements
+>>>>>>> d80696f03766613ec44317f2539c89f3b1ec068c
                 else:
                     status = STATUS_PREP
                     idle_time = 0
