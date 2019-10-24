@@ -41,7 +41,8 @@ def start_kart(delay, kart):
     lap = 1 # current lap number
     total_laps = RACE_TOTAL_LAPS # total race distance (distance mode)
     lap_times = [0, 1000*8, 1000*15, 1000*21, 1000*26, 1000*30, 1000*38, 1000*45, 1000*51, 1000*56, 1000*60, 1000*660] # element at position i stores the total time needed to complete i laps
-    lap_time_offset = 10*kart*(1 if kart%2==0 else -1) # modify how long it takes each kart to complete a lap
+    lap_time_offset = 10*kart # modify how long it takes each kart to complete a lap
+    # lap_time_offset = 10*kart*(1 if kart%2==0 else -1) # alternative with alternating kart placements
     race_is_done = False
 
     sleep(delay/10) # initial delay before starting this kart
@@ -59,7 +60,7 @@ def start_kart(delay, kart):
                     lap = 1
                     idle_time = 0
                     lap_time_offset = 10*kart
-                    # lap_time_offset = 10*kart*(1 if kart%2==0 else -1) # alternating kart placements
+                    # lap_time_offset = 10*kart*(1 if kart%2==0 else -1) # alternative
                 else:
                     status = STATUS_PREP
                     idle_time = 0
