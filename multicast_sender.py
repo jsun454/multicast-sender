@@ -58,6 +58,8 @@ def start_kart(delay, kart):
                     prev_lap_time = 0
                     lap = 1
                     idle_time = 0
+                    lap_time_offset = 10*kart
+                    # lap_time_offset = 10*kart*(1 if kart%2==0 else -1) # alternating kart placements
                 else:
                     status = STATUS_PREP
                     idle_time = 0
